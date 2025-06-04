@@ -1,0 +1,6 @@
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Vector store files
+chroma_arista/
+chroma_juniper/
