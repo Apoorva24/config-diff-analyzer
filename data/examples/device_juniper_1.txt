@@ -1,0 +1,103 @@
+system {
+    host-name edge-router-01;
+    root-authentication {
+        encrypted-password "$6$rounds=5000$EXAMPLE"; ## SECRET-DATA
+    }
+    services {
+        ssh;
+        netconf {
+            ssh;
+        }
+    }
+}
+
+interfaces {
+    ge-0/0/0 {
+        description "Link to ISP A";
+        unit 0 {
+            family inet {
+                address 192.0.2.1/30;
+            }
+        }
+    }
+    ge-0/0/1 {
+        description "Internal uplink";
+        unit 0 {
+            family inet {
+                address 10.0.0.1/24;
+            }
+        }
+    }
+    lo0 {
+        unit 0 {
+            family inet {
+                address 1.1.1.1/32;
+            }
+        }
+    }
+}
+
+routing-options {
+    static {
+        route 0.0.0.0/0 next-hop 192.0.2.2;
+    }
+    autonomous-system 65001;
+}
+
+protocols {
+    bgp {
+        group external-peers {
+            type external;
+            peer-as 65002;
+            neighbor 192.0.2.2 {
+                description "Existing Peer";
+                family inet {
+                    unicast;
+                }
+                export EXPORT-ROUTES;
+                import IMPORT-ROUTES;
+            }
+        }
+    }
+}
+
+policy-options {
+    policy-statement EXPORT-ROUTES {
+        term 1 {
+            from protocol direct;
+            then accept;
+        }
+    }
+    policy-statement IMPORT-ROUTES {
+        then accept;
+    }
+}
+
+firewall {
+    family inet {
+        filter management {
+            term allow-ssh {
+                from {
+                    protocol tcp;
+                    port ssh;
+                }
+                then accept;
+            }
+            term default-deny {
+                then reject;
+            }
+        }
+    }
+}
+
+interfaces {
+    lo0 {
+        unit 0 {
+            family inet {
+                filter {
+                    input management;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,89 @@
+! Command: show running-config
+! device: Arista-1 (vEOS, EOS-4.16.6M)
+!
+! boot system flash:/vEOS-lab.swi
+!
+transceiver qsfp default-mode 4x10G
+!
+hostname Arista-1
+ip name-server vrf default 10.101.0.20
+ip name-server vrf default 8.8.8.8
+!
+ntp server 10.101.0.1
+!
+snmp-server community private rw
+snmp-server community public ro
+!
+spanning-tree mode mstp
+!
+aaa authorization exec default local
+!
+enable secret 5 $1$4OtUFR2e$Zzc9mEjSlphSLuVgNmrYZ.
+no aaa root
+!
+username admin privilege 15 role network-admin secret 5 $1$GPX2An5j$TBzjxeN33esIBUmlN7VZn/
+!
+! Hostname and basic settings
+hostname Router1
+ip routing
+no ip domain-lookup
+
+! Management interface
+interface Management1
+   ip address 192.168.0.10/24
+   no shutdown
+   description OOB Management
+
+! Loopback interface
+interface Loopback0
+   ip address 10.255.255.1/32
+   description Router ID
+
+!
+interface Ethernet1
+   no switchport
+   ip address 203.0.113.2/30
+   description Uplink to ISP Router
+   no shutdown
+
+!
+interface Ethernet2
+   no switchport
+   ip address 10.1.1.1/24
+   description LAN Router Connection
+   no shutdown
+
+!
+interface Ethernet3
+   no switchport
+   speed forced 10000
+   ip address 10.2.2.1/24
+   description High-Speed Internal Link
+   no shutdown
+!
+router bgp 65001
+   router-id 10.255.255.1
+   no bgp default ipv4-unicast
+   bgp log-neighbor-changes
+
+   ! Enable IPv4 unicast address family
+   address-family ipv4
+      network 10.255.255.1/32
+      network 10.2.2.0/24
+      network 10.1.1.0/24
+   exit-address-family
+
+   ! External BGP neighbor (e.g., ISP)
+   neighbor 203.0.113.1 remote-as 65000
+   neighbor 203.0.113.1 description ISP Peer
+   neighbor 203.0.113.1 update-source Ethernet1
+   address-family ipv4
+      neighbor 203.0.113.1 activate
+   exit-address-family
+!
+alias exec intbrief "show ip interface brief"
+alias exec routes "show ip route"
+alias exec intstats "show interfaces counters errors"
+!
+!
+end
