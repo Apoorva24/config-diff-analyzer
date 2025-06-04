@@ -2,5 +2,5 @@
 .ipynb_checkpoints/
 
 # Vector store files
-chroma_arista/
-chroma_juniper/
+data/chroma_arista/
+data/chroma_juniper/
