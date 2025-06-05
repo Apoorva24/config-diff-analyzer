@@ -4,21 +4,18 @@ import streamlit as st
 
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.vectorstores import Chroma
-from langchain_openai import ChatOpenAI
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from pathlib import Path
 
 os.environ["OPENAI_API_KEY"] = "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"
-DOCS_PATH = "/Users/apoorvah/config-diff-analyzer/data"
-
-# Set up hugging face embeddings
-embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+project_root = Path(__file__).parent
+DATA_PATH = f"{project_root}/data"
 
 # Load pre-built vectorstore
 @st.cache_resource
 def load_vectorstore(vendor):
-    persist_dir = f"{DOCS_PATH}/chroma_{vendor.lower()}"
-    return Chroma(persist_directory=persist_dir, embedding_function=embedding_model)
+    persist_path = f"./vectorstores/chroma_{vendor}"
+    return Chroma(persist_directory=persist_path, embedding_function=OpenAIEmbeddings(model="text-embedding-3-small"))
 
 # UI
 st.title("Config Diff Analyzer")
