@@ -3,6 +3,8 @@
 
 .DS_Store
 
+.env
+
 # Vector store files
 chroma_arista/
 chroma_juniper/

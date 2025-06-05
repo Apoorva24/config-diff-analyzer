@@ -1,12 +1,15 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 from langchain_community.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import TextLoader
 from langchain_openai import OpenAIEmbeddings
 
-os.environ["OPENAI_API_KEY"] = "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"
+load_dotenv()
+openai_api_key = os.getenv("OPENAI_API_KEY")
 project_root = Path(__file__).parent
+
 DATA_PATH = f"{project_root}/data"
 VENDOR_DOCS_PATH= f"{DATA_PATH}/vendor_docs"
 VENDORS = ["Arista", "Juniper"]
@@ -22,7 +25,7 @@ def build_vectorstore_for_vendor(vendor_name: str, input_folder: str, persist_di
         all_docs.extend(splitter.split_documents(docs))
 
     print(f"Total documents after split: {len(all_docs)}")
-    Chroma.from_documents(documents=all_docs, embedding=OpenAIEmbeddings(model="text-embedding-3-small"), persist_directory=persist_dir)
+    Chroma.from_documents(documents=all_docs, embedding=OpenAIEmbeddings(model="text-embedding-3-small", openai_api_key=openai_api_key), persist_directory=persist_dir)
     print(f"Vectorstore created for {vendor_name} at {persist_dir}")
 
 if __name__ == "__main__":
