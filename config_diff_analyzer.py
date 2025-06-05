@@ -25,7 +25,7 @@ retriever = load_vectorstore(vendor).as_retriever(search_kwargs={"k": 3})
 
 # Prompt and LLM setup
 prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a senior network engineer helping review config changes for routers and switches."),
+    ("system", "You are a senior network engineer helping review router config changes."),
     ("user", "Here is the diff between two configs:\n\n{diff}\n\nBased on the documentation:\n{context}\n\n{question}")
 ])
 
